@@ -1,0 +1,33 @@
+name: orbstack-repro
+
+networks:
+  demo:
+    name: demo
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.6.0.0/24
+
+services:
+  dnsmasq:
+    image: andyshinn/dnsmasq
+    volumes: 
+    - ./config/dnsmasq.conf:/dnsmasq-config/dnsmasq.conf
+    platform: linux/amd64
+    restart: unless-stopped
+    command: 
+    - --conf-file=/dnsmasq-config/dnsmasq.conf
+    - --except-interface=lo
+    - --bind-interfaces
+    - --log-queries
+    - --log-facility=-
+    networks:
+      demo: 
+        ipv4_address: 172.6.0.100
+
+  webserver:
+    image: nginx
+    restart: unless-stopped
+    networks:
+      demo: 
+        ipv4_address: 172.6.0.10
